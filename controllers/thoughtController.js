@@ -5,12 +5,17 @@ exports.createThought = async (req, res) => {
       return res.status(400).json({
         message: "Please enter a userId",});
       }
-      const user = await User.findOne({ _id: req.body.userId });
+      const user = await User.findById(req.body.userId);
       if (!user) {
         return res.status(400).json({
           message: "Please enter a valid userId",
         });
       }
+      const thought = await Thoughts.create({
+      ...req.body,
+        userId: req.body.userId,
+      });
+      res.status(200).json(thought);
     } catch (err) {
     console.log(err);
     return res.status(500).json(err);
@@ -34,7 +39,7 @@ exports.removeReaction = async (req, res) => {
     try {
       const thought = await Thoughts.findByIdAndUpdate(
         req.params.thoughtId,
-        { $pull: { reactions: { reactionId: req.params.reactionId } } },
+        { $pull: { reactions: {_id: req.params.reactionId } } },
         { new: true }
       );
       res.status(200).json(thought);
